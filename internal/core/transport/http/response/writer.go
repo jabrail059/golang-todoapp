@@ -26,9 +26,9 @@ func (w *ResponseWriter) WriteHeader(statusCode int) {
 }
 
 // Получение сохранённого статус кода
-func (w *ResponseWriter) GetStatusCodeOrPanic() int {
+func (w *ResponseWriter) GetStatusCode() int {
 	if w.statusCode == StatusCodeUninitialized {
-		panic("no status code set")
+		return http.StatusOK
 	}
 
 	return w.statusCode
