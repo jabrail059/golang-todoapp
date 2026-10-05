@@ -10,13 +10,25 @@ import (
 )
 
 type CreateTaskRequest struct {
-	Title        string  `json:"title" validate:"required,min=1,max=100"`
-	Description  *string `json:"description" validate:"omitempty,min=1,max=1000"`
-	AuthorUserID int     `json:"author_user_id" validate:"required"`
+	Title        string  `json:"title" validate:"required,min=1,max=100"         example:"Домашнее задание"`
+	Description  *string `json:"description" validate:"omitempty,min=1,max=1000" example:"Сделать дз по матану до пятницы"`
+	AuthorUserID int     `json:"author_user_id" validate:"required"              example:"5"`
 }
 
-type CreatedAtResponse TaskDTOResponse
+type CreateTaskResponse TaskDTOResponse
 
+// CreateTask 	godoc
+// @Summary 	"Создание задачи"
+// @Description "Создание новой задачи в системе"
+// @Tags 		tasks
+// @Accept 		json
+// @Produce 	json
+// @Param 		request body 	 CreateTaskRequest 		true 		"CreateTask тело запроса"
+// @Success 	201 	{object} CreateTaskResponse 				"Успешно созданная задача"
+// @Failure 	400 	{object} core_http_response.ErrorResponse 	"Bad Request"
+// @Failure 	404 	{object} core_http_response.ErrorResponse 	"Author Not Found"
+// @Failure 	500 	{object} core_http_response.ErrorResponse 	"Internal Server Error"
+// @Router 		/tasks 	[post]
 func (h *TasksHTTPHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
@@ -48,7 +60,7 @@ func (h *TasksHTTPHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := CreatedAtResponse(taskDTOFromDomain(taskDomain))
+	response := CreateTaskResponse(taskDTOFromDomain(taskDomain))
 
 	responseHandler.JSONResponse(response, http.StatusCreated)
 }

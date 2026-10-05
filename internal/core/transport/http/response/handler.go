@@ -41,6 +41,15 @@ func (h *HTTPResponseHandler) NoContentResponse() {
 	h.w.WriteHeader(http.StatusNoContent)
 }
 
+func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
+	statusCode := http.StatusInternalServerError
+	err := fmt.Errorf("unexpected panic: %v", p)
+
+	h.log.Error(msg, zap.Error(err))
+
+	h.errorResponse(statusCode, err, msg)
+}
+
 func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	var (
 		statusCode int
@@ -72,22 +81,14 @@ func (h *HTTPResponseHandler) errorResponse(
 	err error,
 	msg string,
 ) {
-	response := map[string]string{
-		"message": msg,
-		"error":   err.Error(),
+
+	response := ErrorResponse{
+		Error:   err.Error(),
+		Message: msg,
 	}
 
 	h.JSONResponse(
 		response,
 		statusCode,
 	)
-}
-
-func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
-	statusCode := http.StatusInternalServerError
-	err := fmt.Errorf("unexpected panic: %v", p)
-
-	h.log.Error(msg, zap.Error(err))
-
-	h.errorResponse(statusCode, err, msg)
 }
