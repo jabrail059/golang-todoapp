@@ -46,6 +46,16 @@ func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 	}
 }
 
+func (s *HTTPServer) RegisterRoutes(routes ...Route) {
+	for _, route := range routes {
+		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
+
+		h := route.WithMiddleware()
+
+		s.mux.Handle(pattern, h)
+	}
+}
+
 func (s *HTTPServer) RegisterSwagger() {
 	/*
 		При обращении на url: /swagger/ отдается страница SwaggerUI,
