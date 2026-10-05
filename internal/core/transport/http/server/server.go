@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jabrail059/golang-todoapp/docs"
 	core_logger "github.com/jabrail059/golang-todoapp/internal/core/logger"
 	core_http_middleware "github.com/jabrail059/golang-todoapp/internal/core/transport/http/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"go.uber.org/zap"
 )
 
@@ -42,6 +44,34 @@ func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 			http.StripPrefix(prefix, router.WithMiddleware()),
 		)
 	}
+}
+
+func (s *HTTPServer) RegisterSwagger() {
+	/*
+		При обращении на url: /swagger/ отдается страница SwaggerUI,
+		которая делает отдельный запрос на /swagger/doc.json
+
+		Ниже описываем сам хандлер для /swagger/doc.json:
+		устанавливаем заголовок, статус код и в теле ответа
+		вызываем сгенерированную функцию ReadDoc из пакета docs
+	*/
+	s.mux.Handle(
+		"/swagger/",
+		httpSwagger.Handler(
+			httpSwagger.URL("/swagger/doc.json"),
+			// Убираем блок Models (необязательно)
+			httpSwagger.DefaultModelsExpandDepth(-1),
+		),
+	)
+
+	s.mux.HandleFunc(
+		"/swagger/doc.json",
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(docs.SwaggerInfo.ReadDoc()))
+		},
+	)
 }
 
 // Запуск Сервера и корректное завершение работы

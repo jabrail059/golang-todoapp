@@ -12,6 +12,18 @@ import (
 
 type GetStatisticsResponse StatisticsDTOResponse
 
+// GetStatistics 	godoc
+// @Summary 		Получение статистики
+// @Description 	Получение статистики по задачам с опциональной фильтрацией по user_id и/или временному промежутку
+// @Tags 			statistics
+// @Produce 		json
+// @Param 			user_id  	query 		int 		false				"Фильтрация стратистики по кнокретному пользователю"
+// @Param 			from 		query 		string 		false				"Начало промежутка рассмотрения статистики (включительно), формат: YYYY-MM-DD"
+// @Param 			to 			query 		string 		false				"Конец промежутка рассмотрения статистики (не включительно), формат: YYYY-MM-DD"
+// @Success 		200 		{object} GetStatisticsResponse 				"Успешное получение статистики"
+// @Failure 		400 		{object} core_http_response.ErrorResponse 	"Bad Request"
+// @Failure 		500 		{object} core_http_response.ErrorResponse 	"Internal Server Error"
+// @Router 			/statistics [get]
 func (h *StatisticsHTTPHandler) GetStatistics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)

@@ -14,6 +14,41 @@ const (
 	requestIDHeader = "X-Request-ID"
 )
 
+// CORS-обработчик проверяет, входит ли сайт с входящим запросом в список доверенных адресов
+func CORS() Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Множество доверенных адресов
+			allowedOrigins := map[string]struct{}{
+				"http://localhost:5050": {},
+			}
+
+			// Получаем адрес сайта и проверяем, есть ли он в множестве или нет
+			// Если входит, то проставляем соответствующие заголовки
+			origin := r.Header.Get("Origin")
+			if _, ok := allowedOrigins[origin]; ok {
+				// Сообщаем браузеру, что запросы с данного сайта разрешены
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				// Прописываем разрешенные методы для него
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, OPTIONS")
+				// Прописываем разрешенные http-заголовки запроса
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			}
+
+			// Проверяем метод запроса:
+			// если метод Options, значит браузер проверяет, разрешен ли запрос
+			// нужно вернуть код 200
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			// В противном случае продолжаем обработку http-запроса
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 // Получаем id каждого HTTP запроса для удобного отслеживания в логах
 func RequestID() Middleware {
 	return func(next http.Handler) http.Handler {
