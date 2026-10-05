@@ -15,15 +15,15 @@ const (
 )
 
 // CORS-обработчик проверяет, входит ли сайт с входящим запросом в список доверенных адресов
-func CORS() Middleware {
+func CORS(allowedOriginsList []string) Middleware {
+	// Множество доверенных адресов
+	allowedOrigins := map[string]struct{}{}
+	for _, origin := range allowedOriginsList {
+		allowedOrigins[origin] = struct{}{}
+	}
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Множество доверенных адресов
-			allowedOrigins := map[string]struct{}{
-				"http://localhost:5050": {},
-				"null":                  {},
-			}
-
 			// Получаем адрес сайта и проверяем, есть ли он в множестве или нет
 			// Если входит, то проставляем соответствующие заголовки
 			origin := r.Header.Get("Origin")
