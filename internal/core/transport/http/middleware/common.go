@@ -21,6 +21,7 @@ func CORS() Middleware {
 			// Множество доверенных адресов
 			allowedOrigins := map[string]struct{}{
 				"http://localhost:5050": {},
+				"null":                  {},
 			}
 
 			// Получаем адрес сайта и проверяем, есть ли он в множестве или нет
